@@ -54,6 +54,6 @@ public class ReservationService {
    }
 
    public List<Reservation> all() {
-    return this.reservationRepo.findAll();
+    return this.reservationRepo.findAllByOrderByIdDesc();
 }
 }

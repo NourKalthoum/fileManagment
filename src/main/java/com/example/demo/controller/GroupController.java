@@ -22,12 +22,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.entity.ERole;
 import com.example.demo.entity.File;
 import com.example.demo.entity.Group;
+import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
 import com.example.demo.repository.FileRepo;
 import com.example.demo.service.FileService;
 import com.example.demo.service.GroupService;
+import com.example.demo.service.UserService;
+
 import static org.springframework.http.ResponseEntity.status;
 
 import io.jsonwebtoken.JwsHeader;
@@ -43,95 +47,101 @@ public class GroupController {
     @Autowired
     FileRepo fileRepo;
     @Autowired
-    public  CacheManager cacheManager;
+    public CacheManager cacheManager;
+    @Autowired
+    UserService userService;
 
-    @PostMapping(path ="/createGroup")
-	public Object createGroup(@RequestBody Group group) { 
-          try {
-		groupService.createGroup(group);
-		return group;
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-    }
-	}
-
-   @DeleteMapping(path = "/deleteGroup")
-   public boolean deleteGroup(@RequestParam(name = "id") Long id)
-   {
-       return groupService.deleteGroup(id);
-   }
-
-    @GetMapping(path ="/showGroups")
-    public ResponseEntity<List<Group>> showGroups(){
-        return status(HttpStatus.OK).body(this.groupService.showGroups());
-    }
-
-   @CachePut(value = "file")
-   @PutMapping(path ="/addFileToGroup")
-   public Object addFileToGroup(@RequestParam(name = "id_group") Long id_group,@RequestParam(name = "id_file") Long id_file){
-       try {
-           File File = this.fileService.show(id_file);
-           UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                       .getPrincipal();
-       String username = userDetails.getUsername();
-            if (File.getFowner().getUsername().matches(username)== false){
-            return false;
-           }
-       Group Group = groupService.getGroup(id_group);
-               Group.getFiles().add(File);
-               groupService.saveGroup(Group);
-       return true;
-   } catch (Exception e) {
-       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-   }
-   }
-
-   @CacheEvict(value = "file", key = "#id")
-   @DeleteMapping(path = "/deleteFileFromGroup")
-   public boolean deleteFileFromGroup(@RequestParam(name = "id_group") Long id_group,@RequestParam(name = "id_file") Long id_file)
-   {
-       try {
-           File File = this.fileService.show(id_file);
-           UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                       .getPrincipal();
-       String username = userDetails.getUsername();
-            if (File.getFowner().getUsername().matches(username)== false){
-            return false;
-           }
-           Group Group = groupService.getGroup(id_group);
-           Group.getFiles().remove(File);
-           groupService.saveGroup(Group);
-           return true;
-       } catch (Exception e) {
-           return false;
-       }
-   }
-
-    @PutMapping(path ="/addUserToGroup")
-    public Object addUserToGroup(@RequestParam(name = "id") Long id, @RequestBody User User){
+    @PostMapping(path = "/createGroup")
+    public Object createGroup(@RequestBody Group group) {
         try {
-        Group Group = groupService.getGroup(id);
-        Group.getUsers().add(User);
-        groupService.saveGroup(Group);
-        return true;
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            groupService.createGroup(group);
+            return group;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
+
+    @DeleteMapping(path = "/deleteGroup")
+    public boolean deleteGroup(@RequestParam(name = "id") Long id) {
+        return groupService.deleteGroup(id);
     }
-    
+
+    @GetMapping(path = "/showGroups")
+    public ResponseEntity<List<Group>> showGroups() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String username = userDetails.getUsername();
+        User user = userService.getUserByUsername(username);
+        Role admin = new Role(2, ERole.ROLE_ADMIN);
+        if (user.getRoles().contains(admin))
+            return status(HttpStatus.OK).body(this.groupService.showGroups());
+            return null;
+    }
+
+    @CachePut(value = "file")
+    @PutMapping(path = "/addFileToGroup")
+    public Object addFileToGroup(@RequestParam(name = "id_group") Long id_group,
+            @RequestParam(name = "id_file") Long id_file) {
+        try {
+            File File = this.fileService.show(id_file);
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            String username = userDetails.getUsername();
+            if (File.getFowner().getUsername().matches(username) == false) {
+                return false;
+            }
+            Group Group = groupService.getGroup(id_group);
+            Group.getFiles().add(File);
+            groupService.saveGroup(Group);
+            return true;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @CacheEvict(value = "file", key = "#id")
+    @DeleteMapping(path = "/deleteFileFromGroup")
+    public boolean deleteFileFromGroup(@RequestParam(name = "id_group") Long id_group,
+            @RequestParam(name = "id_file") Long id_file) {
+        try {
+            File File = this.fileService.show(id_file);
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            String username = userDetails.getUsername();
+            if (File.getFowner().getUsername().matches(username) == false) {
+                return false;
+            }
+            Group Group = groupService.getGroup(id_group);
+            Group.getFiles().remove(File);
+            groupService.saveGroup(Group);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @PutMapping(path = "/addUserToGroup")
+    public Object addUserToGroup(@RequestParam(name = "id") Long id, @RequestBody User User) {
+        try {
+            Group Group = groupService.getGroup(id);
+            Group.getUsers().add(User);
+            groupService.saveGroup(Group);
+            return true;
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
     // todo
-    @GetMapping(path ="/groupsOFUserOwner")
-    public ResponseEntity<List<Group>> groupsOFUserOwner(@RequestParam(name = "id") Long id){
+    @GetMapping(path = "/groupsOFUserOwner")
+    public ResponseEntity<List<Group>> groupsOFUserOwner(@RequestParam(name = "id") Long id) {
         return status(HttpStatus.OK).body(this.groupService.groupsOFUserOwner(id));
     }
-    
+
     @Cacheable("file")
     @GetMapping(path = "/showFilesOfGroup")
-    public ResponseEntity<List<File>> showFilesOfGroup(@RequestParam(name = "id") Long id){
+    public ResponseEntity<List<File>> showFilesOfGroup(@RequestParam(name = "id") Long id) {
         return status(HttpStatus.OK).body(this.groupService.showFilesOfGroup(id));
     }
-
-    
-
 
 }

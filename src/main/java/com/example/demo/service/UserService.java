@@ -17,6 +17,8 @@ public class UserService {
 	RoleRepo roleRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    UserRepo userRepo;
     
     public Role saveRole(Role role) {
         return roleRepository.save(role);
@@ -26,4 +28,8 @@ public class UserService {
 		
 		return userRepository.findById(id);
 	}
+
+    public User getUserByUsername(String username){
+        return userRepo.findByUsername(username);
+    }
 }
