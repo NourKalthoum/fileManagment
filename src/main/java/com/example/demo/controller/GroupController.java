@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,6 +42,8 @@ public class GroupController {
     FileService fileService;
     @Autowired
     FileRepo fileRepo;
+    @Autowired
+    public  CacheManager cacheManager;
 
     @PostMapping(path ="/createGroup")
 	public Object createGroup(@RequestBody Group group) { 
@@ -60,6 +66,7 @@ public class GroupController {
         return status(HttpStatus.OK).body(this.groupService.showGroups());
     }
 
+   @CachePut(value = "file")
    @PutMapping(path ="/addFileToGroup")
    public Object addFileToGroup(@RequestParam(name = "id_group") Long id_group,@RequestParam(name = "id_file") Long id_file){
        try {
@@ -79,6 +86,7 @@ public class GroupController {
    }
    }
 
+   @CacheEvict(value = "file", key = "#id")
    @DeleteMapping(path = "/deleteFileFromGroup")
    public boolean deleteFileFromGroup(@RequestParam(name = "id_group") Long id_group,@RequestParam(name = "id_file") Long id_file)
    {
@@ -110,22 +118,14 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
     }
-
-    // @GetMapping(path = "/groupsOFUserOwner")
-    // public Object groupsOFUserOwner(@RequestParam(name = "id") Long id){
-    //     try {
-    //         return groupService.groupsOFUserOwner(id);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-    //     }
-    // }
     
     // todo
     @GetMapping(path ="/groupsOFUserOwner")
     public ResponseEntity<List<Group>> groupsOFUserOwner(@RequestParam(name = "id") Long id){
         return status(HttpStatus.OK).body(this.groupService.groupsOFUserOwner(id));
     }
-    // todo
+    
+    @Cacheable("file")
     @GetMapping(path = "/showFilesOfGroup")
     public ResponseEntity<List<File>> showFilesOfGroup(@RequestParam(name = "id") Long id){
         return status(HttpStatus.OK).body(this.groupService.showFilesOfGroup(id));

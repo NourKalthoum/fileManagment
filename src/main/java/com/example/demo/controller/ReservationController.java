@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,11 @@ import com.example.demo.entity.File;
 import com.example.demo.entity.Group;
 import com.example.demo.entity.Reservation;
 import com.example.demo.entity.User;
-import com.example.demo.repository.GroupRepo;
-import com.example.demo.repository.UserRepo;
 import com.example.demo.service.FileService;
 import com.example.demo.service.GroupService;
 import com.example.demo.service.ReservationService;
 import com.example.demo.service.UserService;
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @RequestMapping("/api/v1/reservation")
@@ -35,18 +35,25 @@ public class ReservationController {
     UserService userService;
     @Autowired
     ReservationService reservationService;
-
+    // todo
     @GetMapping(path = "/showFreeFilesOfMyGroup")
-    public Object showFreeFilesOfMyGroup(@RequestParam(name = "idGroup") Long idGroup,@RequestParam(name = "idUser") Long idUser){
-        try {
+    public ResponseEntity<List<File>> showFreeFilesOfMyGroup(@RequestParam(name = "idGroup") Long idGroup,@RequestParam(name = "idUser") Long idUser){
            Group groupEntity = groupService.getGroup(idGroup);
            User userEntity = userService.getUser(idUser);
-           if(groupEntity.getUsers().contains(userEntity)== false)
-            return "You are not a member of this group";
-            return groupService.showFreeFilesOfGroup(idGroup);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+           if(groupEntity.getUsers().contains(userEntity) == false)
+            return status(HttpStatus.OK).body(null);
+            return status(HttpStatus.OK).body(this.groupService.showFreeFilesOfGroup(idGroup));
+            
+        
+    }
+    // todo
+    @DeleteMapping(path = "/deleteUserFromGroup")
+    public boolean deleteUserFromGroup(@RequestParam(name = "idGroup") Long idGroup,@RequestParam(name = "idUser") Long idUser)
+    { 
+        Reservation reservation = reservationService.getReservation(idUser);
+        if(reservation == null)
+        return groupService.getGroup(idGroup).getUsers().remove(idUser);
+        return false;
     }
 
     @PostMapping(path = "/cheek_in")
@@ -70,15 +77,17 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+    
+    // todo
+    @PostMapping(path = "/bulk_cheek_in")
+    public Object bulk_cheek_in(@RequestParam(name = "idUser") Long idUser) {
+        return null;
+    }
 
-    @DeleteMapping(path = "/deleteUserFromGroup")
-   public boolean deleteUserFromGroup(@RequestParam(name = "idGroup") Long idGroup,@RequestParam(name = "idUser") Long idUser)
-   { 
-       Reservation reservation = reservationService.getReservation(idUser);
-       if(reservation == null)
-       return groupService.getGroup(idGroup).getUsers().remove(idUser);
-       return false;
-   }
+   @GetMapping(path ="/report")
+    public ResponseEntity<List<Reservation>> report(){
+        return status(HttpStatus.OK).body(this.reservationService.all());
+    }
 
 
 }

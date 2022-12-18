@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.*;
@@ -27,10 +28,12 @@ public class Reservation {
 
     @JsonIgnoreProperties(value = {"reservation"},allowSetters = true)
     @ManyToOne(targetEntity = User.class)
+    @JsonBackReference
     private User user;
 
     @JsonIgnoreProperties(value = {"reservation"},allowSetters = true)
     @ManyToOne(targetEntity = File.class)
+    @JsonBackReference
     private File file;
 
 

@@ -3,6 +3,9 @@ package com.example.demo;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 
 import com.example.demo.entity.ERole;
@@ -11,6 +14,7 @@ import com.example.demo.service.StorageService;
 import com.example.demo.service.UserService;
 
 @SpringBootApplication
+@EnableCaching
 public class FilesManagementApplication {
 
 	public static void main(String[] args) {
@@ -27,6 +31,10 @@ public class FilesManagementApplication {
 			// imageStorage.init();
 		};
 	}
-		
+
+	@Bean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager("file");
+    }	
 	
 }

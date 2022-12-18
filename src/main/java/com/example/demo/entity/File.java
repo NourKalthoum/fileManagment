@@ -27,9 +27,11 @@ public class File {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "group_file", joinColumns = @JoinColumn(name = "file_id"), inverseJoinColumns = @JoinColumn(name = "group_id"))
+    @JsonBackReference
     private List<Group> groups;
 
     @JsonIgnoreProperties(value = {"file"},allowSetters = true)
     @OneToMany(mappedBy = "file")
+    @JsonBackReference
     private List<Reservation> reservations;
 }

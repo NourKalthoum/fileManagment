@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class ReservationService {
     reservationEntity.setType("booked");
     Date currentDate = Calendar.getInstance().getTime();
     reservationEntity.setCreateAt(currentDate);
+    reservationRepo.save(reservationEntity);
     return reservationEntity;
    }
 
@@ -40,13 +42,18 @@ public class ReservationService {
     reservationEntity.setFile(fileEntite);
     reservationEntity.setUser(userEntity);
     reservationEntity.setType("Released");
-    reservationEntity.setCreateAt(null);
+    Date currentDate = Calendar.getInstance().getTime();
+    reservationEntity.setCreateAt(currentDate);
+    reservationRepo.save(reservationEntity);
     return reservationEntity;
    }
 
    public Reservation getReservation(Long id){
     
     return reservationRepo.findByUser(id);
-
    }
+
+   public List<Reservation> all() {
+    return this.reservationRepo.findAll();
+}
 }
