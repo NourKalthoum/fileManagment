@@ -73,13 +73,13 @@ public class GroupService {
     }
 
     public List<File> showFreeFilesOfGroup(Long id) {
-
         Optional<Group> group = groupRepo.findById(id);
         List<File> files = group.get().getFiles();
+        List<File> freeFiles = new ArrayList<>();
         for (File file : files) {
             if (file.isFree())
-                files.add(file);
+                freeFiles.add(file);
         }
-        return files;
+        return freeFiles;
     }
 }

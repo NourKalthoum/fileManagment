@@ -37,9 +37,9 @@ public class FileService {
            } catch (IOException e) {
                throw new RuntimeException(e);
            }
-
-           fileRepo.delete(fileRepo.findById(id).orElseThrow());
-           return fileRepo.findById(id).isEmpty();
+          File file2 = fileRepo.getById(id);
+           fileRepo.delete(file2);
+           return true;
        }
        return false;
    }

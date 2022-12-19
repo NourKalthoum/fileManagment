@@ -26,7 +26,7 @@ import static org.springframework.http.ResponseEntity.status;
 @RestController
 @RequestMapping("/api/v1/reservation")
 public class ReservationController {
-    
+
     @Autowired
     GroupService groupService;
     @Autowired
@@ -35,59 +35,57 @@ public class ReservationController {
     UserService userService;
     @Autowired
     ReservationService reservationService;
+
     // todo
     @GetMapping(path = "/showFreeFilesOfMyGroup")
-    public ResponseEntity<List<File>> showFreeFilesOfMyGroup(@RequestParam(name = "idGroup") Long idGroup,@RequestParam(name = "idUser") Long idUser){
-           Group groupEntity = groupService.getGroup(idGroup);
-           User userEntity = userService.getUser(idUser);
-           if(groupEntity.getUsers().contains(userEntity) == false)
+    public ResponseEntity<List<File>> showFreeFilesOfMyGroup(@RequestParam(name = "idGroup") Long idGroup,
+            @RequestParam(name = "idUser") Long idUser) {
+        Group groupEntity = groupService.getGroup(idGroup);
+        User userEntity = userService.getUser(idUser);
+        if (groupEntity.getUsers().contains(userEntity) == false)
             return status(HttpStatus.OK).body(null);
-            return status(HttpStatus.OK).body(this.groupService.showFreeFilesOfGroup(idGroup));
-            
-        
+        return status(HttpStatus.OK).body(this.groupService.showFreeFilesOfGroup(idGroup));
+
     }
-    // todo
+
+    
     @DeleteMapping(path = "/deleteUserFromGroup")
-    public boolean deleteUserFromGroup(@RequestParam(name = "idGroup") Long idGroup,@RequestParam(name = "idUser") Long idUser)
-    { 
+    public boolean deleteUserFromGroup(@RequestParam(name = "idGroup") Long idGroup,
+            @RequestParam(name = "idUser") Long idUser) {
         Reservation reservation = reservationService.getReservation(idUser);
-        if(reservation == null)
-        return groupService.getGroup(idGroup).getUsers().remove(idUser);
+        if (reservation == null || reservation.getType().equals("released")){
+         User user = userService.getUser(idUser);
+            return groupService.getGroup(idGroup).getUsers().remove(user);
+        }
         return false;
     }
 
     @PostMapping(path = "/cheek_in")
-    public Object cheek_in(@RequestParam(name = "idFile") Long idFile,@RequestParam(name = "idUser") Long idUser) {
+    public Object cheek_in(@RequestParam(name = "idFile") Long idFile, @RequestParam(name = "idUser") Long idUser) {
         try {
-           File fileEntite = fileService.getFile(idFile);
-           fileEntite.setFree(false);
-            return reservationService.createReservationBooked(idFile,idUser);
+            File fileEntite = fileService.getFile(idFile);
+            fileEntite.setFree(false);
+            return reservationService.createReservationBooked(idFile, idUser);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
     @PostMapping(path = "/cheek_out")
-    public Object cheek_out(@RequestParam(name = "idFile") Long idFile,@RequestParam(name = "idUser") Long idUser) {
+    public Object cheek_out(@RequestParam(name = "idFile") Long idFile, @RequestParam(name = "idUser") Long idUser) {
         try {
-           File fileEntite = fileService.getFile(idFile);
-           fileEntite.setFree(true);
-            return reservationService.createReservationReleased(idFile,idUser);
+            File fileEntite = fileService.getFile(idFile);
+            fileEntite.setFree(true);
+            return reservationService.createReservationReleased(idFile, idUser);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    
-    // todo
-    @PostMapping(path = "/bulk_cheek_in")
-    public Object bulk_cheek_in(@RequestParam(name = "idUser") Long idUser) {
-        return null;
-    }
 
-   @GetMapping(path ="/report")
-    public ResponseEntity<List<Reservation>> report(){
+
+    @GetMapping(path = "/report")
+    public ResponseEntity<List<Reservation>> report() {
         return status(HttpStatus.OK).body(this.reservationService.all());
     }
-
 
 }

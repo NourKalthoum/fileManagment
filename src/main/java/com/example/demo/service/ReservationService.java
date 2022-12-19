@@ -48,12 +48,13 @@ public class ReservationService {
     return reservationEntity;
    }
 
-   public Reservation getReservation(Long id){
-    
-    return reservationRepo.findByUser(id);
-   }
-
    public List<Reservation> all() {
     return this.reservationRepo.findAllByOrderByIdDesc();
 }
+
+public Reservation getReservation(Long id) {
+    return reservationRepo.findTopByUserIdOrderByIdDesc(id);
+}
+
+
 }

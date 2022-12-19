@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +31,6 @@ import com.example.demo.service.UserService;
 
 import static org.springframework.http.ResponseEntity.status;
 
-import io.jsonwebtoken.JwsHeader;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -118,7 +114,7 @@ public class GroupController {
             return false;
         }
     }
-// todo
+
     @PutMapping(path = "/addUserToGroup")
     public Object addUserToGroup(@RequestParam(name = "idGroup") Long idGroup,@RequestParam(name = "idUser") Long idUser) {
         try {
