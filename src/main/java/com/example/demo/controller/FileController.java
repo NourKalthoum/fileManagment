@@ -37,7 +37,7 @@ public class FileController {
     @Autowired
     UserService userService;
     
-    @PostMapping(path ="/create")
+    @PostMapping(path ="/createFile")
 	public ResponseEntity<?> createFile(@RequestParam("txt") MultipartFile txt, File file){ 
           try {
             String fileName = this.storageService.save(txt);
@@ -50,7 +50,7 @@ public class FileController {
     }
 	}
 
-   @DeleteMapping(path = "/delete")
+   @DeleteMapping(path = "/deleteFile")
    public boolean deleteFile(@RequestParam(name = "id") Long id) throws InterruptedException
    {
        return this.fileService.deleteFile(id);

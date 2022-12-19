@@ -52,10 +52,9 @@ public class GroupController {
     UserService userService;
 
     @PostMapping(path = "/createGroup")
-    public Object createGroup(@RequestBody Group group) {
+    public Object createGroup(@RequestParam(name = "name") String name,@RequestParam(name = "user_id") Long user_id) {
         try {
-            groupService.createGroup(group);
-            return group;
+            return groupService.createGroup(name,user_id);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -132,7 +131,7 @@ public class GroupController {
         }
     }
 
-    // todo
+    
     @GetMapping(path = "/groupsOFUserOwner")
     public ResponseEntity<List<Group>> groupsOFUserOwner(@RequestParam(name = "id") Long id) {
         return status(HttpStatus.OK).body(this.groupService.groupsOFUserOwner(id));

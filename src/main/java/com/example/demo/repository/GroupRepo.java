@@ -13,7 +13,7 @@ public interface GroupRepo extends JpaRepository<Group, Long> {
     public Group findByName(String name);
     public Group findById(int id);
     public Group findById(long id);
-    @Query(value = "SELECT g FROM Group g where g.gowner = ?1")
-    public List<Group> getGroup(long id);
+    @Query(value = "SELECT g FROM Group g where g.gowner.id = :id")
+    public List<Group> findGroupsByGownerId(long id);
     
 }

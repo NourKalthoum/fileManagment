@@ -14,6 +14,7 @@ import lombok.*;
 @RequiredArgsConstructor
 @Table(name = "groups")
 public class Group {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

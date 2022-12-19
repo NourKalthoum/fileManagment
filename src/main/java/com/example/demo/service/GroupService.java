@@ -22,12 +22,17 @@ public class GroupService {
     @Autowired
     UserRepo userRepo;
 
-    public Group createGroup(Group group) {
-        Group Group = groupRepo.findByName(group.getName());
+    public Group createGroup(String name , Long userId) {
+        Group Group = groupRepo.findByName(name);
         if (Group != null)
             return null;
-        return groupRepo.save(group);
+            Group group1 = new Group();
+            group1.setName(name);
+            User user = userRepo.getById(userId);
+            group1.setGowner(user);
+        return groupRepo.save(group1);
     }
+
 
     public boolean deleteGroup(Long id) {
         Group Group = groupRepo.getById(id);
@@ -55,17 +60,9 @@ public class GroupService {
         return groupRepo.save(Group);
     }
 
-    // public List<Group> groupsOFUserOwner(Long id){
-
-    // Optional<User> user = userRepo.findById(id);
-
-    // List<Group> groups = user.get().getGroup();
-    // return groups;
-    // }
-
     public List<Group> groupsOFUserOwner(Long id) {
 
-        return groupRepo.getGroup(id);
+        return groupRepo.findGroupsByGownerId(id);
     }
 
     public List<File> showFilesOfGroup(Long id) {
