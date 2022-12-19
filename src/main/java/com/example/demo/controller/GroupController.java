@@ -118,12 +118,13 @@ public class GroupController {
             return false;
         }
     }
-
+// todo
     @PutMapping(path = "/addUserToGroup")
-    public Object addUserToGroup(@RequestParam(name = "id") Long id, @RequestBody User User) {
+    public Object addUserToGroup(@RequestParam(name = "idGroup") Long idGroup,@RequestParam(name = "idUser") Long idUser) {
         try {
-            Group Group = groupService.getGroup(id);
-            Group.getUsers().add(User);
+            Group Group = groupService.getGroup(idGroup);
+            User user = userService.getUser(idUser);
+            Group.getUsers().add(user);
             groupService.saveGroup(Group);
             return true;
         } catch (Exception e) {

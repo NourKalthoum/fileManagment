@@ -45,7 +45,6 @@ public class FileService {
    }
 
     public File show(long id) {
-        System.out.println("Hi from show a file service.");
 		return this.fileRepo.findById(id);
 	}
 
